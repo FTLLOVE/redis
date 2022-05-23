@@ -1,6 +1,6 @@
 package redis
 
-import "github.com/gogf/gf/frame/g"
+import "github.com/gogf/gf/util/gconv"
 
 type Pool struct {
 	// 连接池最大阻塞等待时间（使用负值表示没有限制）
@@ -26,21 +26,16 @@ type Options struct {
 	Pool Pool
 }
 
-func NewDefaultOptions() Options {
+func NewDefaultOptions(ip string, port int64, password string, database int) Options {
 	pool := Pool{
 		MaxWait: -1,
 		MaxIdle: 10,
 		MinIdle: 0,
 	}
 
-	ip := g.Config().GetString("redis.host")
-	port := g.Config().GetString("redis.port")
-	password := g.Config().GetString("redis.password")
-	database := g.Config().GetInt("redis.database")
-
 	return Options{
 		Mode:     "standalone",
-		Host:     ip + ":" + port,
+		Host:     ip + ":" + gconv.String(port),
 		Password: password,
 		Database: database,
 		Timeout:  500,
