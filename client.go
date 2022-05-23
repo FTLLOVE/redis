@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/go-redis/redis/v8"
 	"github.com/gogf/gf/os/glog"
+	"github.com/gogf/gf/util/gconv"
 	"github.com/gogf/gf/util/guid"
 	"strings"
 	"time"
@@ -605,6 +606,439 @@ func (*instance) XTrimMinID(ctx context.Context, key string, minID string) (int6
 
 func (*instance) XTrimMinIDApprox(ctx context.Context, key string, minID string, limit int64) (int64, error) {
 	return rdb.XTrimMinIDApprox(ctx, key, minID, limit).Result()
+}
+
+func (*instance) ZAdd(ctx context.Context, key string, members ...*Z) (int64, error) {
+	var args []*redis.Z
+	if err := gconv.SliceStruct(members, &args); err != nil {
+		return 0, err
+	}
+	return rdb.ZAdd(ctx, key, args...).Result()
+}
+
+func (*instance) ZAddNX(ctx context.Context, key string, members ...*Z) (int64, error) {
+	var args []*redis.Z
+	if err := gconv.SliceStruct(members, &args); err != nil {
+		return 0, err
+	}
+	return rdb.ZAddNX(ctx, key, args...).Result()
+}
+
+func (*instance) ZAddXX(ctx context.Context, key string, members ...*Z) (int64, error) {
+	var args []*redis.Z
+	if err := gconv.SliceStruct(members, &args); err != nil {
+		return 0, err
+	}
+	return rdb.ZAddXX(ctx, key, args...).Result()
+}
+
+func (*instance) ZIncr(ctx context.Context, key string, member *Z) (float64, error) {
+	var args *redis.Z
+	if err := gconv.Struct(member, &args); err != nil {
+		return 0, err
+	}
+	return rdb.ZIncr(ctx, key, args).Result()
+}
+
+func (*instance) ZIncrNX(ctx context.Context, key string, member *Z) (float64, error) {
+	var args *redis.Z
+	if err := gconv.Struct(member, &args); err != nil {
+		return 0, err
+	}
+	return rdb.ZIncrNX(ctx, key, args).Result()
+}
+
+func (*instance) ZIncrXX(ctx context.Context, key string, member *Z) (float64, error) {
+	var args *redis.Z
+	if err := gconv.Struct(member, &args); err != nil {
+		return 0, err
+	}
+	return rdb.ZIncrXX(ctx, key, args).Result()
+}
+
+func (*instance) ZCard(ctx context.Context, key string) (int64, error) {
+	return rdb.ZCard(ctx, key).Result()
+}
+
+func (*instance) ZCount(ctx context.Context, key, min, max string) (int64, error) {
+	return rdb.ZCount(ctx, key, min, max).Result()
+}
+
+func (*instance) ZLexCount(ctx context.Context, key, min, max string) (int64, error) {
+	return rdb.ZLexCount(ctx, key, min, max).Result()
+}
+
+func (*instance) ZIncrBy(ctx context.Context, key string, increment float64, member string) (float64, error) {
+	return rdb.ZIncrBy(ctx, key, increment, member).Result()
+}
+
+func (*instance) ZInter(ctx context.Context, store *ZStore) ([]string, error) {
+	var args *redis.ZStore
+	if err := gconv.Struct(store, &args); err != nil {
+		return nil, err
+	}
+	return rdb.ZInter(ctx, args).Result()
+}
+
+func (*instance) ZInterWithScores(ctx context.Context, store *ZStore) ([]Z, error) {
+	var args *redis.ZStore
+	if err := gconv.Struct(store, &args); err != nil {
+		return nil, err
+	}
+	zs, err := rdb.ZInterWithScores(ctx, args).Result()
+	if err != nil {
+		return nil, err
+	}
+	var result []Z
+	if err := gconv.Structs(zs, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (*instance) ZInterStore(ctx context.Context, destination string, store *ZStore) (int64, error) {
+	var args *redis.ZStore
+	if err := gconv.Struct(store, &args); err != nil {
+		return 0, err
+	}
+	return rdb.ZInterStore(ctx, destination, args).Result()
+}
+
+func (*instance) ZMScore(ctx context.Context, key string, members ...string) ([]float64, error) {
+	return rdb.ZMScore(ctx, key, members...).Result()
+}
+
+func (*instance) ZPopMax(ctx context.Context, key string, count ...int64) ([]Z, error) {
+	var result []Z
+	zs, err := rdb.ZPopMax(ctx, key, count...).Result()
+	if err != nil {
+		return nil, err
+	}
+	if err := gconv.Structs(zs, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (*instance) ZPopMin(ctx context.Context, key string, count ...int64) ([]Z, error) {
+	var result []Z
+	zs, err := rdb.ZPopMin(ctx, key, count...).Result()
+	if err != nil {
+		return nil, err
+	}
+	if err := gconv.Structs(zs, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (*instance) ZRange(ctx context.Context, key string, start, stop int64) ([]string, error) {
+	return rdb.ZRange(ctx, key, start, stop).Result()
+}
+
+func (*instance) ZRangeWithScores(ctx context.Context, key string, start, stop int64) ([]Z, error) {
+	var result []Z
+	zs, err := rdb.ZRangeWithScores(ctx, key, start, stop).Result()
+	if err != nil {
+		return nil, err
+	}
+	if err := gconv.Structs(zs, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (*instance) ZRangeByScore(ctx context.Context, key string, opt *ZRangeBy) ([]string, error) {
+	var args *redis.ZRangeBy
+	if err := gconv.Struct(opt, &args); err != nil {
+		return nil, err
+	}
+	return rdb.ZRangeByScore(ctx, key, args).Result()
+}
+
+func (*instance) ZRangeByLex(ctx context.Context, key string, opt *ZRangeBy) ([]string, error) {
+	var args *redis.ZRangeBy
+	if err := gconv.Struct(opt, &args); err != nil {
+		return nil, err
+	}
+	return rdb.ZRangeByLex(ctx, key, args).Result()
+}
+
+func (*instance) ZRangeByScoreWithScores(ctx context.Context, key string, opt *ZRangeBy) ([]Z, error) {
+	var args *redis.ZRangeBy
+	if err := gconv.Struct(opt, &args); err != nil {
+		return nil, err
+	}
+	var data []Z
+	zs, err := rdb.ZRangeByScoreWithScores(ctx, key, args).Result()
+	if err = gconv.Structs(zs, &data); err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func (*instance) ZRank(ctx context.Context, key, member string) (int64, error) {
+	return rdb.ZRank(ctx, key, member).Result()
+}
+
+func (*instance) ZRem(ctx context.Context, key string, members ...interface{}) (int64, error) {
+	return rdb.ZRem(ctx, key, members...).Result()
+}
+
+func (*instance) ZRemRangeByRank(ctx context.Context, key string, start, stop int64) (int64, error) {
+	return rdb.ZRemRangeByRank(ctx, key, start, stop).Result()
+}
+
+func (*instance) ZRemRangeByScore(ctx context.Context, key, min, max string) (int64, error) {
+	return rdb.ZRemRangeByScore(ctx, key, min, max).Result()
+}
+
+func (*instance) ZRemRangeByLex(ctx context.Context, key, min, max string) (int64, error) {
+	return rdb.ZRemRangeByLex(ctx, key, min, max).Result()
+}
+
+func (*instance) ZRevRange(ctx context.Context, key string, start, stop int64) ([]string, error) {
+	return rdb.ZRevRange(ctx, key, start, stop).Result()
+}
+
+func (*instance) ZRevRangeWithScores(ctx context.Context, key string, start, stop int64) ([]Z, error) {
+	zs, err := rdb.ZRevRangeWithScores(ctx, key, start, stop).Result()
+	if err != nil {
+		return nil, err
+	}
+	var result []Z
+	if err := gconv.Structs(zs, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (*instance) ZRevRank(ctx context.Context, key, member string) (int64, error) {
+	return rdb.ZRevRank(ctx, key, member).Result()
+}
+
+func (*instance) ZScore(ctx context.Context, key, member string) (float64, error) {
+	return rdb.ZScore(ctx, key, member).Result()
+}
+
+func (*instance) ZUnionStore(ctx context.Context, dest string, store *ZStore) (int64, error) {
+	var args *redis.ZStore
+	if err := gconv.Struct(store, &args); err != nil {
+		return 0, err
+	}
+	return rdb.ZUnionStore(ctx, dest, args).Result()
+}
+
+func (*instance) ZUnion(ctx context.Context, store ZStore) ([]string, error) {
+	var args redis.ZStore
+	if err := gconv.Struct(store, &args); err != nil {
+		return nil, nil
+	}
+	return rdb.ZUnion(ctx, args).Result()
+}
+
+func (*instance) ZUnionWithScores(ctx context.Context, store ZStore) ([]Z, error) {
+	var args redis.ZStore
+	if err := gconv.Struct(store, &args); err != nil {
+		return nil, nil
+	}
+	result, err := rdb.ZUnionWithScores(ctx, args).Result()
+	if err != nil {
+		return nil, err
+	}
+	var data []Z
+	if err = gconv.Structs(result, &data); err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func (*instance) ZRandMember(ctx context.Context, key string, count int, withScores bool) ([]string, error) {
+	return rdb.ZRandMember(ctx, key, count, withScores).Result()
+}
+
+func (*instance) ZDiff(ctx context.Context, keys ...string) ([]string, error) {
+	return rdb.ZDiff(ctx, keys...).Result()
+}
+
+func (*instance) ZDiffWithScores(ctx context.Context, keys ...string) ([]Z, error) {
+	zs, err := rdb.ZDiffWithScores(ctx, keys...).Result()
+	if err != nil {
+		return nil, err
+	}
+	var data []Z
+	if err := gconv.Structs(zs, &data); err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func (*instance) ZDiffStore(ctx context.Context, destination string, keys ...string) (int64, error) {
+	return rdb.ZDiffStore(ctx, destination, keys...).Result()
+}
+
+func (*instance) PFAdd(ctx context.Context, key string, els ...interface{}) (int64, error) {
+	return rdb.PFAdd(ctx, key, els...).Result()
+}
+
+func (*instance) PFCount(ctx context.Context, keys ...string) (int64, error) {
+	return rdb.PFCount(ctx, keys...).Result()
+}
+
+func (*instance) PFMerge(ctx context.Context, dest string, keys ...string) (string, error) {
+	return rdb.PFMerge(ctx, dest, keys...).Result()
+}
+
+func (*instance) BgRewriteAOF(ctx context.Context) (string, error) {
+	return rdb.BgRewriteAOF(ctx).Result()
+}
+
+func (*instance) BgSave(ctx context.Context) (string, error) {
+	return rdb.BgSave(ctx).Result()
+}
+
+func (*instance) ClientKill(ctx context.Context, ipPort string) (string, error) {
+	return rdb.ClientKill(ctx, ipPort).Result()
+}
+
+func (*instance) ClientKillByFilter(ctx context.Context, keys ...string) (int64, error) {
+	return rdb.ClientKillByFilter(ctx, keys...).Result()
+}
+
+func (*instance) ClientList(ctx context.Context) (string, error) {
+	return rdb.ClientList(ctx).Result()
+}
+
+func (*instance) ClientPause(ctx context.Context, dur time.Duration) (bool, error) {
+	return rdb.ClientPause(ctx, dur).Result()
+}
+
+func (*instance) ClientID(ctx context.Context) (int64, error) {
+	return rdb.ClientID(ctx).Result()
+}
+
+func (*instance) ConfigGet(ctx context.Context, parameter string) ([]interface{}, error) {
+	return rdb.ConfigGet(ctx, parameter).Result()
+}
+
+func (*instance) ConfigResetStat(ctx context.Context) (string, error) {
+	return rdb.ConfigResetStat(ctx).Result()
+}
+
+func (*instance) ConfigSet(ctx context.Context, parameter, value string) (string, error) {
+	return rdb.ConfigSet(ctx, parameter, value).Result()
+}
+
+func (*instance) ConfigRewrite(ctx context.Context) (string, error) {
+	return rdb.ConfigRewrite(ctx).Result()
+}
+
+func (*instance) DBSize(ctx context.Context) (int64, error) {
+	return rdb.DBSize(ctx).Result()
+}
+
+func (*instance) FlushAll(ctx context.Context) (string, error) {
+	return rdb.FlushAll(ctx).Result()
+}
+
+func (*instance) FlushAllAsync(ctx context.Context) (string, error) {
+	return rdb.FlushAllAsync(ctx).Result()
+}
+
+func (*instance) FlushDB(ctx context.Context) (string, error) {
+	return rdb.FlushDB(ctx).Result()
+}
+
+func (*instance) FlushDBAsync(ctx context.Context) (string, error) {
+	return rdb.FlushDBAsync(ctx).Result()
+}
+
+func (*instance) Info(ctx context.Context, section ...string) (string, error) {
+	return rdb.Info(ctx, section...).Result()
+}
+
+func (*instance) LastSave(ctx context.Context) (int64, error) {
+	return rdb.LastSave(ctx).Result()
+}
+
+func (*instance) Save(ctx context.Context) (string, error) {
+	return rdb.Save(ctx).Result()
+}
+
+func (*instance) Shutdown(ctx context.Context) (string, error) {
+	return rdb.Shutdown(ctx).Result()
+}
+
+func (*instance) ShutdownSave(ctx context.Context) (string, error) {
+	return rdb.ShutdownSave(ctx).Result()
+}
+
+func (*instance) ShutdownNoSave(ctx context.Context) (string, error) {
+	return rdb.ShutdownNoSave(ctx).Result()
+}
+
+func (*instance) SlaveOf(ctx context.Context, host, port string) (string, error) {
+	return rdb.SlaveOf(ctx, host, port).Result()
+}
+
+func (*instance) Time(ctx context.Context) (time.Time, error) {
+	return rdb.Time(ctx).Result()
+}
+
+func (*instance) DebugObject(ctx context.Context, key string) (string, error) {
+	return rdb.DebugObject(ctx, key).Result()
+}
+
+func (*instance) ReadOnly(ctx context.Context) (string, error) {
+	return rdb.ReadOnly(ctx).Result()
+}
+
+func (*instance) ReadWrite(ctx context.Context) (string, error) {
+	return rdb.ReadWrite(ctx).Result()
+}
+
+func (*instance) MemoryUsage(ctx context.Context, key string, samples ...int) (int64, error) {
+	return rdb.MemoryUsage(ctx, key, samples...).Result()
+}
+
+func (*instance) Eval(ctx context.Context, script string, keys []string, args ...interface{}) (interface{}, error) {
+	return rdb.Eval(ctx, script, keys, args...).Result()
+}
+
+func (*instance) EvalSha(ctx context.Context, sha1 string, keys []string, args ...interface{}) (interface{}, error) {
+	return rdb.EvalSha(ctx, sha1, keys, args...).Result()
+}
+
+func (*instance) ScriptExists(ctx context.Context, hashes ...string) ([]bool, error) {
+	return rdb.ScriptExists(ctx, hashes...).Result()
+}
+
+func (*instance) ScriptFlush(ctx context.Context) (string, error) {
+	return rdb.ScriptFlush(ctx).Result()
+}
+
+func (*instance) ScriptKill(ctx context.Context) (string, error) {
+	return rdb.ScriptKill(ctx).Result()
+}
+
+func (*instance) ScriptLoad(ctx context.Context, script string) (string, error) {
+	return rdb.ScriptLoad(ctx, script).Result()
+}
+
+func (*instance) Publish(ctx context.Context, channel string, message interface{}) (int64, error) {
+	return rdb.Publish(ctx, channel, message).Result()
+}
+
+func (*instance) PubSubChannels(ctx context.Context, pattern string) ([]string, error) {
+	return rdb.PubSubChannels(ctx, pattern).Result()
+}
+
+func (*instance) PubSubNumSub(ctx context.Context, channels ...string) (map[string]int64, error) {
+	return rdb.PubSubNumSub(ctx, channels...).Result()
+}
+
+func (*instance) PubSubNumPat(ctx context.Context) (int64, error) {
+	return rdb.PubSubNumPat(ctx).Result()
 }
 
 // GetExpire 根据key 获取过期时间
